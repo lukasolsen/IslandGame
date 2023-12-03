@@ -1,0 +1,12 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.terminal-text {
+  font-family: "Courier New", Courier, monospace;
+  font-size: 1.2rem;
+  color: #fff;
+  padding: 0.5rem;
+  margin: 0.5rem;
+  border-radius: 0.5rem;
+}
