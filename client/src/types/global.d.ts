@@ -3,6 +3,7 @@ interface SocketContext {
   joinLobby(lobbyId: string, username: string): void;
   startGame(): void;
 
+  player: Player;
   inLobby: boolean;
   lobby: Lobby;
   gameStarted: boolean;
@@ -14,10 +15,14 @@ interface Lobby {
   owner: Player;
 
   hasStarted: boolean;
+  map: number[][];
 }
 
 interface Player {
   id: string;
   username: string;
   isOwner: boolean;
+
+  position: { x: number; y: number };
+  possibleMoves: string[];
 }

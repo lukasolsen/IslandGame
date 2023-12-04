@@ -8,6 +8,7 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({
   const [socket, setSocket] = useState<Socket | undefined>(undefined);
   const [inLobby, setInLobby] = useState(false);
   const [lobby, setLobby] = useState<Lobby>({} as Lobby);
+  const [player, setPlayer] = useState<Player>({} as Player); // [TODO] - Used for the game page.
   const [gameStarted, setGameStarted] = useState(false);
 
   useEffect(() => {
@@ -46,12 +47,17 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({
             players: args.players,
             owner: args.owner,
             hasStarted: args.hasStarted,
+            map: args.map,
           });
 
           if (args.hasStarted) {
             setGameStarted(true);
             setInLobby(false);
           }
+        });
+
+        socket.on("playerUpdate", (args: Player) => {
+          setPlayer(args);
         });
       }
     }
@@ -82,6 +88,7 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({
         players: args.players,
         owner: args.owner,
         hasStarted: args.hasStarted,
+        map: null,
       });
     });
   };
@@ -96,6 +103,7 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({
         players: args.players,
         owner: args.owner,
         hasStarted: args.hasStarted,
+        map: null,
       });
     });
   };
@@ -105,6 +113,7 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({
     createLobby,
     startGame,
 
+    player,
     lobby,
     inLobby,
     gameStarted,

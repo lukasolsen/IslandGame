@@ -28,6 +28,8 @@ export class SocketManager {
         id: socket.id,
         username: args.username,
         isOwner: true,
+
+        position: { x: 0, y: 0 },
       };
       const newLobby = new Lobby(lobbyId, owner);
 
@@ -36,7 +38,7 @@ export class SocketManager {
       socket.join(lobbyId);
       this.io.to(lobbyId).emit("lobbyUpdate", {
         lobbyId: lobbyId,
-        players: newLobby.players,
+        players: newLobby.getPlayers(),
         owner: newLobby.owner,
       });
     });
@@ -51,10 +53,21 @@ export class SocketManager {
           socket.emit("error", "Game already started");
           return;
         }
+        if (lobby.getPlayers().length >= 6) {
+          socket.emit("error", "Lobby full");
+          return;
+        }
+        if (lobby.getPlayers().find((p) => p.username === args.username)) {
+          socket.emit("error", "Username already taken");
+          return;
+        }
+
         const newPlayer = {
           id: socket.id,
           username: args.username,
           isOwner: false,
+
+          position: { x: 0, y: 0 },
         };
         lobby.addPlayer(newPlayer);
 
@@ -63,7 +76,7 @@ export class SocketManager {
         socket.join(args.lobbyId);
         this.io.to(lobby.id).emit("lobbyUpdate", {
           lobbyId: lobby.id,
-          players: lobby.players,
+          players: lobby.getPlayers(),
           owner: lobby.owner,
         });
       } else {
@@ -76,7 +89,7 @@ export class SocketManager {
 
       this.lobbies.forEach((lobby, lobbyId) => {
         if (socket.id === lobby.owner.id) {
-          if (lobby.players.length < 2) {
+          if (lobby.getPlayers().length < 2) {
             socket.emit("error", "Not enough players");
             return;
           } else if (lobby.hasGameStarted()) {
@@ -88,9 +101,19 @@ export class SocketManager {
           this.lobbies.set(lobbyId, lobby);
           this.io.to(lobbyId).emit("lobbyUpdate", {
             lobbyId: lobbyId,
-            players: lobby.players,
             owner: lobby.owner,
             hasStarted: lobby.hasGameStarted(),
+            map: lobby.map,
+          });
+
+          // Send a message to each player with their position
+          lobby.players.forEach((player) => {
+            this.io.to(player.id).emit("playerUpdate", {
+              id: player.id,
+              position: player.position,
+              username: player.username,
+              possibleMoves: lobby.getPossibleMoves(player.id),
+            });
           });
         } else {
           socket.emit("error", "Only the owner can start the game");
@@ -112,7 +135,7 @@ export class SocketManager {
           this.lobbies.set(lobbyId, lobby);
           this.io.to(lobbyId).emit("lobbyUpdate", {
             lobbyId: lobbyId,
-            players: lobby.players,
+            players: lobby.getPlayers(),
             owner: lobby.owner,
 
             gameStarted: lobby.hasGameStarted(),

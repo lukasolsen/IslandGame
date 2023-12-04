@@ -1,14 +1,24 @@
 import React from "react";
 import { useSocket } from "./context/SocketContext";
 import Lobby from "./page/Lobby";
+import Game from "./page/Game";
 
 const App: React.FC = () => {
-  const { inLobby, createLobby, joinLobby, lobby, startGame, gameStarted } =
-    useSocket();
+  const {
+    inLobby,
+    createLobby,
+    joinLobby,
+    lobby,
+    startGame,
+    gameStarted,
+    player,
+  } = useSocket();
   const [option, setOption] = React.useState<string>("");
   const [username, setUsername] = React.useState<string>("");
 
   const [lobbyId, setLobbyId] = React.useState<string>("");
+
+  console.log(player);
 
   return (
     <div className="flex bg-white flex-row w-screen h-full">
@@ -16,7 +26,7 @@ const App: React.FC = () => {
 
       {!inLobby && gameStarted && (
         <div className="w-full h-full">
-          <h3>The game has started.</h3>
+          <Game terrainData={lobby.map} player={player} />
         </div>
       )}
 
