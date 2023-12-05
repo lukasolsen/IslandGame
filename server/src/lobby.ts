@@ -1,4 +1,5 @@
 import { generationTerrain } from "./Map/generation";
+import { findPlatformNearby } from "./Map/utils/utils";
 
 interface Player {
   id: string;
@@ -10,6 +11,8 @@ interface Player {
 
 export class Lobby {
   public id: string;
+  public public: boolean;
+
   public players: Player[];
   public owner: Player;
   public gameStarted: boolean;
@@ -17,8 +20,9 @@ export class Lobby {
   public platformPositions: { x: number; y: number }[];
   public turnId: string;
 
-  constructor(id: string, owner: Player) {
+  constructor(id: string, owner: Player, isPublic: boolean) {
     this.id = id;
+    this.public = isPublic;
     this.players = [owner];
     this.owner = owner;
     this.gameStarted = false;
@@ -85,7 +89,8 @@ export class Lobby {
 
     switch (move) {
       case "up":
-        const platformAbove = this.findPlatformNearby(
+        const platformAbove = findPlatformNearby(
+          this.platformPositions,
           player.position.x,
           player.position.y - 1
         );
@@ -99,7 +104,8 @@ export class Lobby {
         }
         break;
       case "down":
-        const platformBelow = this.findPlatformNearby(
+        const platformBelow = findPlatformNearby(
+          this.platformPositions,
           player.position.x,
           player.position.y + 1
         );
@@ -113,7 +119,8 @@ export class Lobby {
         }
         break;
       case "left":
-        const platformLeft = this.findPlatformNearby(
+        const platformLeft = findPlatformNearby(
+          this.platformPositions,
           player.position.x - 1,
           player.position.y
         );
@@ -127,7 +134,8 @@ export class Lobby {
         }
         break;
       case "right":
-        const platformRight = this.findPlatformNearby(
+        const platformRight = findPlatformNearby(
+          this.platformPositions,
           player.position.x + 1,
           player.position.y
         );
@@ -138,6 +146,7 @@ export class Lobby {
           }
 
           this.players.find((p) => p.id === playerId).position = platformRight;
+          console.log("Moved player %s to %s", playerId, platformRight);
         }
         break;
     }
@@ -147,13 +156,14 @@ export class Lobby {
     const player = this.players.find((p) => p.id === playerId);
 
     if (!player) {
-      return []; // Player not found
+      return [];
     }
 
     const possibleMoves = [];
 
     // Check above
-    const platformAbove = this.findPlatformNearby(
+    const platformAbove = findPlatformNearby(
+      this.platformPositions,
       player.position.x,
       player.position.y - 1
     );
@@ -162,7 +172,8 @@ export class Lobby {
     }
 
     // Check below
-    const platformBelow = this.findPlatformNearby(
+    const platformBelow = findPlatformNearby(
+      this.platformPositions,
       player.position.x,
       player.position.y + 1
     );
@@ -171,7 +182,8 @@ export class Lobby {
     }
 
     // Check left
-    const platformLeft = this.findPlatformNearby(
+    const platformLeft = findPlatformNearby(
+      this.platformPositions,
       player.position.x - 1,
       player.position.y
     );
@@ -180,7 +192,8 @@ export class Lobby {
     }
 
     // Check right
-    const platformRight = this.findPlatformNearby(
+    const platformRight = findPlatformNearby(
+      this.platformPositions,
       player.position.x + 1,
       player.position.y
     );
@@ -189,19 +202,6 @@ export class Lobby {
     }
 
     return possibleMoves;
-  }
-
-  findPlatformNearby(x: number, y: number) {
-    const maxDistance = 1000;
-
-    for (const platform of this.platformPositions) {
-      const distance = Math.sqrt((platform.x - x) ** 2 + (platform.y - y) ** 2);
-      if (distance <= maxDistance) {
-        return platform;
-      }
-    }
-
-    return null;
   }
 
   hasGameStarted() {

@@ -31,7 +31,7 @@ export class SocketManager {
 
         position: { x: 0, y: 0 },
       };
-      const newLobby = new Lobby(lobbyId, owner);
+      const newLobby = new Lobby(lobbyId, owner, true);
 
       this.lobbies.set(lobbyId, newLobby);
 
@@ -101,9 +101,7 @@ export class SocketManager {
         if (player) {
           lobby.doAction(player.id, args.move);
 
-          this.lobbies.set(lobby.id, lobby);
-
-          this.io.to(lobby.id).emit("playerUpdate", {
+          this.io.to(socket.id).emit("playerUpdate", {
             id: player.id,
             position: player.position,
             username: player.username,
