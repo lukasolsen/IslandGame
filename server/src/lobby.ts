@@ -85,221 +85,123 @@ export class Lobby {
 
     switch (move) {
       case "up":
-        // Find the platform above the player
-        const platformAbove = this.platformPositions.find(
-          (platform) =>
-            platform.x === player.position.x &&
-            platform.y === player.position.y - 1
+        const platformAbove = this.findPlatformNearby(
+          player.position.x,
+          player.position.y - 1
         );
 
-        // Check if there is a platform above
         if (platformAbove) {
-          // Check if there is already a player at that platform
-          const playerAtPlatform = this.players.find(
-            (otherPlayer) =>
-              otherPlayer.position.x === platformAbove.x &&
-              otherPlayer.position.y === platformAbove.y
-          );
-
-          if (playerAtPlatform) {
-            console.log("Another player is already at the platform");
-          } else {
-            // Move the player up to the platform
-            player.position.y = platformAbove.y;
-            console.log(
-              `Player ${playerId} moved up to platform ${player.position.y}`
-            );
-            this.turnSwitch();
+          if (this.players.find((p) => p.position === platformAbove)) {
+            return console.error("Player already on platform");
           }
-        } else {
-          console.log("No platform above the player");
+
+          this.players.find((p) => p.id === playerId).position = platformAbove;
         }
         break;
-
       case "down":
-        // Find the platform below the player
-        const platformBelow = this.platformPositions.find(
-          (platform) =>
-            platform.x === player.position.x &&
-            platform.y === player.position.y + 1
+        const platformBelow = this.findPlatformNearby(
+          player.position.x,
+          player.position.y + 1
         );
 
-        // Check if there is a platform below
         if (platformBelow) {
-          // Check if there is already a player at that platform
-          const playerAtPlatform = this.players.find(
-            (otherPlayer) =>
-              otherPlayer.position.x === platformBelow.x &&
-              otherPlayer.position.y === platformBelow.y
-          );
-
-          if (playerAtPlatform) {
-            console.log("Another player is already at the platform");
-          } else {
-            // Move the player down to the platform
-            player.position.y = platformBelow.y;
-            console.log(
-              `Player ${playerId} moved down to platform ${player.position.y}`
-            );
-            this.turnSwitch();
+          if (this.players.find((p) => p.position === platformBelow)) {
+            return console.error("Player already on platform");
           }
-        } else {
-          console.log("No platform below the player");
+
+          this.players.find((p) => p.id === playerId).position = platformBelow;
         }
         break;
-
       case "left":
-        // Find the platform left of the player
-        const platformLeft = this.platformPositions.find(
-          (platform) =>
-            platform.x === player.position.x - 1 &&
-            platform.y === player.position.y
+        const platformLeft = this.findPlatformNearby(
+          player.position.x - 1,
+          player.position.y
         );
 
-        // Check if there is a platform left
         if (platformLeft) {
-          // Check if there is already a player at that platform
-          const playerAtPlatform = this.players.find(
-            (otherPlayer) =>
-              otherPlayer.position.x === platformLeft.x &&
-              otherPlayer.position.y === platformLeft.y
-          );
-
-          if (playerAtPlatform) {
-            console.log("Another player is already at the platform");
-          } else {
-            // Move the player left to the platform
-            player.position.x = platformLeft.x;
-            console.log(
-              `Player ${playerId} moved left to platform ${player.position.x}`
-            );
-            this.turnSwitch();
+          if (this.players.find((p) => p.position === platformLeft)) {
+            return console.error("Player already on platform");
           }
-        } else {
-          console.log("No platform left of the player");
+
+          this.players.find((p) => p.id === playerId).position = platformLeft;
         }
         break;
-
       case "right":
-        // Find the platform right of the player
-        const platformRight = this.platformPositions.find(
-          (platform) =>
-            platform.x === player.position.x + 1 &&
-            platform.y === player.position.y
+        const platformRight = this.findPlatformNearby(
+          player.position.x + 1,
+          player.position.y
         );
 
-        // Check if there is a platform right
         if (platformRight) {
-          // Check if there is already a player at that platform
-          const playerAtPlatform = this.players.find(
-            (otherPlayer) =>
-              otherPlayer.position.x === platformRight.x &&
-              otherPlayer.position.y === platformRight.y
-          );
-
-          if (playerAtPlatform) {
-            console.log("Another player is already at the platform");
-          } else {
-            // Move the player right to the platform
-            player.position.x = platformRight.x;
-            console.log(
-              `Player ${playerId} moved right to platform ${player.position.x}`
-            );
-            this.turnSwitch();
+          if (this.players.find((p) => p.position === platformRight)) {
+            return console.error("Player already on platform");
           }
-        } else {
-          console.log("No platform right of the player");
+
+          this.players.find((p) => p.id === playerId).position = platformRight;
         }
         break;
-      // Add other cases for different moves if needed
-
-      default:
-        console.error("Invalid move");
     }
   }
 
   getPossibleMoves(playerId: string) {
-    const player = this.players.find((player) => player.id === playerId);
+    const player = this.players.find((p) => p.id === playerId);
+
+    if (!player) {
+      return []; // Player not found
+    }
 
     const possibleMoves = [];
 
-    // Check if there is a platform around the player.
-    // If there is, check if there is a player on the platform.
-
     // Check above
-    const platformAbove = this.platformPositions.find(
-      (platform) =>
-        platform.x === player.position.x && platform.y === player.position.y - 1
+    const platformAbove = this.findPlatformNearby(
+      player.position.x,
+      player.position.y - 1
     );
-
     if (platformAbove) {
-      const playerAtPlatform = this.players.find(
-        (otherPlayer) =>
-          otherPlayer.position.x === platformAbove.x &&
-          otherPlayer.position.y === platformAbove.y
-      );
-
-      if (!playerAtPlatform) {
-        possibleMoves.push("up");
-      }
+      possibleMoves.push("up");
     }
 
     // Check below
-    const platformBelow = this.platformPositions.find(
-      (platform) =>
-        platform.x === player.position.x && platform.y === player.position.y + 1
+    const platformBelow = this.findPlatformNearby(
+      player.position.x,
+      player.position.y + 1
     );
-
     if (platformBelow) {
-      const playerAtPlatform = this.players.find(
-        (otherPlayer) =>
-          otherPlayer.position.x === platformBelow.x &&
-          otherPlayer.position.y === platformBelow.y
-      );
-
-      if (!playerAtPlatform) {
-        possibleMoves.push("down");
-      }
+      possibleMoves.push("down");
     }
 
     // Check left
-    const platformLeft = this.platformPositions.find(
-      (platform) =>
-        platform.x === player.position.x - 1 && platform.y === player.position.y
+    const platformLeft = this.findPlatformNearby(
+      player.position.x - 1,
+      player.position.y
     );
-
     if (platformLeft) {
-      const playerAtPlatform = this.players.find(
-        (otherPlayer) =>
-          otherPlayer.position.x === platformLeft.x &&
-          otherPlayer.position.y === platformLeft.y
-      );
-
-      if (!playerAtPlatform) {
-        possibleMoves.push("left");
-      }
+      possibleMoves.push("left");
     }
 
     // Check right
-
-    const platformRight = this.platformPositions.find(
-      (platform) =>
-        platform.x === player.position.x + 1 && platform.y === player.position.y
+    const platformRight = this.findPlatformNearby(
+      player.position.x + 1,
+      player.position.y
     );
-
     if (platformRight) {
-      const playerAtPlatform = this.players.find(
-        (otherPlayer) =>
-          otherPlayer.position.x === platformRight.x &&
-          otherPlayer.position.y === platformRight.y
-      );
-
-      if (!playerAtPlatform) {
-        possibleMoves.push("right");
-      }
+      possibleMoves.push("right");
     }
 
     return possibleMoves;
+  }
+
+  findPlatformNearby(x: number, y: number) {
+    const maxDistance = 1000;
+
+    for (const platform of this.platformPositions) {
+      const distance = Math.sqrt((platform.x - x) ** 2 + (platform.y - y) ** 2);
+      if (distance <= maxDistance) {
+        return platform;
+      }
+    }
+
+    return null;
   }
 
   hasGameStarted() {

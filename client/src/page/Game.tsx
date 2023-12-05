@@ -21,51 +21,114 @@ const TerrainMap: React.FC<TerrainProps> = ({
 
     const draw = () => {
       // Draw terrain
-      for (let x = 0; x < width; x++) {
-        for (let y = 0; y < height; y++) {
-          const terrainColor = terrainData[x][y];
+      for (let x = player.position.x - 200; x < player.position.x + 200; x++) {
+        for (
+          let y = player.position.y - 200;
+          y < player.position.y + 200;
+          y++
+        ) {
+          if (x >= 0 && x < width && y >= 0 && y < height) {
+            const terrainColor = terrainData[x][y];
 
-          ctx.fillStyle = `rgb(${terrainColor[0]}, ${terrainColor[1]}, ${terrainColor[2]})`;
-          ctx.fillRect(x, y, 1, 1);
+            ctx.fillStyle = `rgb(${terrainColor[0]}, ${terrainColor[1]}, ${terrainColor[2]})`;
+            ctx.fillRect(x, y, 1, 1);
+          }
         }
       }
 
-      // Draw platform positions
-      /*ctx.fillStyle = "white"; // Adjust color as needed
-      platformPositions.forEach((position) => {
-        ctx.fillRect(position.x, position.y, 25, 25);
-      });*/
-
       // Draw players
-      // Players have a position (most likely a platformPosition), just use the Player component we have.
-      // We can also use the player's position to draw a circle or something.
-
-      // Draw player
       ctx.fillStyle = "blue"; // Adjust color as needed
-      ctx.fillRect(player.position.x, player.position.y, 15, 15);
+      const playerSize = 15;
+      ctx.fillRect(
+        player.position.x - playerSize / 2,
+        player.position.y - playerSize / 2,
+        playerSize,
+        playerSize
+      );
 
-      // Draw player's name
-      //ctx.fillStyle = "white";
-      //ctx.font = "12px Arial";
-      //ctx.fillText(player.username, player.position.x, player.position.y - 10);
+      // Apply radial gradient for fog effect
+      const gradient = ctx.createRadialGradient(
+        player.position.x,
+        player.position.y,
+        0,
+        player.position.x,
+        player.position.y,
+        200
+      );
+      gradient.addColorStop(0, "rgba(0,0,0,0)"); // Transparent at the center
+      gradient.addColorStop(1, "rgba(0,0,0,1)"); // Opaque at the outer edge
+
+      ctx.fillStyle = gradient;
+      ctx.globalCompositeOperation = "destination-out";
+      ctx.fillRect(
+        player.position.x - 500,
+        player.position.y - 500,
+        width,
+        height
+      );
+      ctx.globalCompositeOperation = "source-over";
     };
 
     draw();
   }, [width, height, terrainData, player]);
 
-  return <canvas ref={canvasRef} width={width} height={height} />;
+  return (
+    <canvas
+      ref={canvasRef}
+      width={width}
+      height={height}
+      className="border border-gray-800"
+    />
+  );
 };
 
 type GameProps = {
   terrainData: number[][];
   player: Player;
+  doAction: (action: string) => void;
 };
 
-const Game: React.FC<GameProps> = ({ terrainData, player }) => {
+const Game: React.FC<GameProps> = ({ terrainData, player, doAction }) => {
   console.log(player);
 
   return (
     <div className="flex flex-col justify-center items-center w-full h-full">
+      <div className="grid grid-cols-3 grid-rows-2 gap-4 absolute bottom-40 select-none">
+        <div className="col-start-2">
+          <button
+            disabled={!player.possibleMoves.includes("up")}
+            onClick={() => doAction("up")}
+          >
+            up
+          </button>
+        </div>
+        <div className="row-start-2">
+          <button
+            disabled={!player.possibleMoves.includes("left")}
+            onClick={() => doAction("left")}
+          >
+            left
+          </button>
+        </div>
+        <div className="row-start-2">
+          <button
+            disabled={!player.possibleMoves.includes("down")}
+            onClick={() => doAction("down")}
+          >
+            down
+          </button>
+        </div>
+        <div className="row-start-2">
+          <button
+            className=""
+            disabled={!player.possibleMoves.includes("right")}
+            onClick={() => doAction("right")}
+          >
+            right
+          </button>
+        </div>
+      </div>
+
       {terrainData && player.position && (
         <TerrainMap
           terrainData={terrainData}

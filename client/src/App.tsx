@@ -12,6 +12,7 @@ const App: React.FC = () => {
     startGame,
     gameStarted,
     player,
+    doAction,
   } = useSocket();
   const [option, setOption] = React.useState<string>("");
   const [username, setUsername] = React.useState<string>("");
@@ -26,7 +27,7 @@ const App: React.FC = () => {
 
       {!inLobby && gameStarted && (
         <div className="w-full h-full">
-          <Game terrainData={lobby.map} player={player} />
+          <Game terrainData={lobby.map} player={player} doAction={doAction} />
         </div>
       )}
 

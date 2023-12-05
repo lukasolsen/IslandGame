@@ -84,6 +84,39 @@ export class SocketManager {
       }
     });
 
+    socket.on("doAction", (args: { move: string }) => {
+      console.log("Doing action %s", args.move);
+
+      // Find the lobby the player is in
+      let lobby: Lobby | undefined;
+      this.lobbies.forEach((l) => {
+        if (l.players.find((p) => p.id === socket.id)) {
+          lobby = l;
+        }
+      });
+
+      if (lobby) {
+        const player = lobby.players.find((player) => player.id === socket.id);
+
+        if (player) {
+          lobby.doAction(player.id, args.move);
+
+          this.lobbies.set(lobby.id, lobby);
+
+          this.io.to(lobby.id).emit("playerUpdate", {
+            id: player.id,
+            position: player.position,
+            username: player.username,
+            possibleMoves: lobby.getPossibleMoves(player.id),
+          });
+        } else {
+          socket.emit("error", "Player not found");
+        }
+      } else {
+        socket.emit("error", "Lobby not found");
+      }
+    });
+
     socket.on("startGame", () => {
       console.log("Starting game");
 

@@ -108,10 +108,15 @@ export const SocketProvider: React.FC<{ children: React.ReactNode }> = ({
     });
   };
 
+  const doAction = (action: string) => {
+    sendToServer("doAction", { move: action });
+  };
+
   const contextValue: SocketContext = {
     joinLobby,
     createLobby,
     startGame,
+    doAction,
 
     player,
     lobby,

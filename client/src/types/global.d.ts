@@ -2,6 +2,7 @@ interface SocketContext {
   createLobby(username: string): void;
   joinLobby(lobbyId: string, username: string): void;
   startGame(): void;
+  doAction(action: string): void;
 
   player: Player;
   inLobby: boolean;
